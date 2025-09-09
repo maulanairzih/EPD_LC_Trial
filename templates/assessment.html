@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Assessment - English Platform</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .header {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+
+        .user-info {
+            color: #666;
+            margin-bottom: 10px;
+        }
+
+        .container {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .question-section {
+            margin-bottom: 40px;
+            text-align: center;
+        }
+
+        .question {
+            font-size: 1.5em;
+            color: #333;
+            margin-bottom: 20px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 15px;
+            border-left: 5px solid #667eea;
+        }
+
+        .instructions {
+            color: #666;
+            margin-bottom: 30px;
+            line-height: 1.6;
+        }
+
+        .recording-controls {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .record-btn {
+            padding: 15px 30px;
+            font-size: 18px;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            margin: 10px;
+            transition: all 0.3s ease;
+            min-width: 150px;
+        }
+
+        .record-btn.start {
+            background: #e74c3c;
+            color: white;
+        }
+
+        .record-btn.stop {
+            background: #27ae60;
+            color: white;
+        }
+
+        .record-btn.submit {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .record-btn:disabled {
+            background: #bdc3c7;
+            cursor: not-allowed;
+        }
+
+        .record-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .status {
+            margin: 20px 0;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .status.recording {
+            background: #fee;
+            color: #c33;
+            border: 1px solid #fcc;
+        }
+
+        .status.ready {
+            background: #efe;
+            color: #3c3;
+            border: 1px solid #cfc;
+        }
+
+        .status.processing {
+            background: #fef8e7;
+            color: #f39c12;
+            border: 1px solid #f7dc6f;
+        }
+
+        .timer {
+            font-size: 1.2em;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+
+        .results {
+            display: none;
+            margin-top: 40px;
+            padding: 30px;
+            background: #f8f9fa;
+            border-radius: 15px;
+        }
+
+        .result-card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        }
+
+        .score {
+            font-size: 2em;
+            font-weight: bold;
+            color: #667eea;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+
+        .score-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .score-item {
+            text-align: center;
+            padding: 15px;
+            background: white;
+            border-radius: 10px;
+            border: 2px solid #f0f0f0;
+        }
+
+        .score-value {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .score-label {
+            color: #666;
+            font-size: 0.9em;
+            margin-top: 5px;
+        }
+
+        .transcript {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            border-left: 4px solid #667eea;
+        }
+
+        .logout-btn {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 10px 20px;
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            backdrop-filter: blur(10px);
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+            }
+            
+            .score-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <button class="logout-btn" onclick="location.href='/logout'">Logout</button>
+
+    <div class="header">
+        <h1>🎯 English Assessment</h1>
+        <div class="user-info">
+            <strong>{{ name }}</strong> | NIK: {{ nik }}
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="question-section">
+            <div class="question">
+                "What have you been doing at work this past week? What challenges did you face and how did you overcome them?"
+            </div>
+            <div class="instructions">
+                Jawab pertanyaan di atas dalam bahasa Inggris. Klik tombol "Start Recording" untuk mulai merekam, 
+                dan "Stop Recording" untuk berhenti. Durasi maksimal adalah 2 menit. 
+                Pastikan Anda berbicara dengan jelas dan natural.
+            </div>
+        </div>
+
+        <div class="recording-controls">
+            <button class="record-btn start" id="startBtn">
+                🎤 Start Recording
+            </button>
+            <button class="record-btn stop" id="stopBtn" disabled>
+                ⏹️ Stop Recording
+            </button>
+            <button class="record-btn submit" id="submitBtn" disabled>
+                📤 Submit Assessment
+            </button>
+        </div>
+
+        <div class="status" id="status">
+            Klik "Start Recording" untuk mulai
+        </div>
+
+        <div class="results" id="results">
+            <h2 style="text-align: center; margin-bottom: 30px; color: #333;">Hasil Assessment</h2>
+            
+            <div class="result-card">
+                <h3 style="color: #667eea; margin-bottom: 15px;">Overall Score</h3>
+                <div class="score" id="overallScore">-</div>
+                <div style="text-align: center; color: #666;">dari 100</div>
+            </div>
+
+            <div class="score-grid" id="detailScores">
+            </div>
+
+            <div class="result-card">
+                <h3 style="color: #667eea; margin-bottom: 15px;">Test Predictions</h3>
+                <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; text-align: center;">
+                    <div>
+                        <div style="font-weight: bold; color: #333;">IELTS</div>
+                        <div style="font-size: 1.2em; color: #667eea;" id="ieltsScore">-</div>
+                    </div>
+                    <div>
+                        <div style="font-weight: bold; color: #333;">CEFR</div>
+                        <div style="font-size: 1.2em; color: #667eea;" id="cefrScore">-</div>
+                    </div>
+                    <div>
+                        <div style="font-weight: bold; color: #333;">PTE</div>
+                        <div style="font-size: 1.2em; color: #667eea;" id="pteScore">-</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="result-card">
+                <h3 style="color: #667eea; margin-bottom: 15px;">What You Said</h3>
+                <div class="transcript" id="transcript">
+                    -
+                </div>
+            </div>
+
+            <div class="result-card">
+                <h3 style="color: #667eea; margin-bottom: 15px;">Content Relevance</h3>
+                <div style="text-align: center;">
+                    <div style="font-size: 1.2em; font-weight: bold; margin-bottom: 10px;" id="relevanceStatus">-</div>
+                    <div style="color: #666;" id="relevanceFeedback">-</div>
+                </div>
+            </div>
+
+            <div style="text-align: center; margin-top: 30px;">
+                <button class="record-btn start" id="resetBtn">Take Another Assessment</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- KODE BARU YANG LEBIH TERSTRUKTUR ---
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const startBtn = document.getElementById('startBtn');
+            const stopBtn = document.getElementById('stopBtn');
+            const submitBtn = document.getElementById('submitBtn');
+            const resetBtn = document.getElementById('resetBtn');
+
+            let mediaRecorder;
+            let audioChunks = [];
+            let recordingStartTime;
+            let timerInterval;
+
+            const startRecording = async () => {
+                try {
+                    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                    mediaRecorder = new MediaRecorder(stream, { mimeType: 'audio/webm' });
+                    
+                    audioChunks = [];
+                    recordingStartTime = Date.now();
+                    
+                    mediaRecorder.ondataavailable = event => {
+                        audioChunks.push(event.data);
+                    };
+                    
+                    mediaRecorder.onstop = () => {
+                        stream.getTracks().forEach(track => track.stop());
+                    };
+                    
+                    mediaRecorder.start();
+                    
+                    startBtn.disabled = true;
+                    stopBtn.disabled = false;
+                    submitBtn.disabled = true;
+                    
+                    updateStatus('recording', '🔴 Sedang merekam...', true);
+                    
+                } catch (error) {
+                    console.error('Error accessing microphone:', error);
+                    alert('Error: Tidak dapat mengakses mikrofon. Pastikan Anda memberikan izin akses.');
+                }
+            };
+
+            const stopRecording = () => {
+                if (mediaRecorder && mediaRecorder.state === 'recording') {
+                    mediaRecorder.stop();
+                    
+                    startBtn.disabled = false;
+                    stopBtn.disabled = true;
+                    submitBtn.disabled = false;
+                    
+                    clearInterval(timerInterval);
+                    updateStatus('ready', '✅ Recording selesai. Klik "Submit Assessment" untuk mengirim.');
+                }
+            };
+
+            const updateStatus = (type, message, showTimer = false) => {
+                const statusEl = document.getElementById('status');
+                if (type !== 'initial') {
+                    statusEl.className = 'status ' + type;
+                } else {
+                    statusEl.className = 'status';
+                }
+                statusEl.innerHTML = message;
+                
+                if (showTimer) {
+                    const timerEl = document.createElement('div');
+                    timerEl.className = 'timer';
+                    timerEl.id = 'timer';
+                    statusEl.appendChild(timerEl);
+                    
+                    timerInterval = setInterval(() => {
+                        const elapsed = Math.floor((Date.now() - recordingStartTime) / 1000);
+                        const minutes = Math.floor(elapsed / 60);
+                        const seconds = elapsed % 60;
+                        if(document.getElementById('timer')) {
+                           document.getElementById('timer').textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+                        }
+                        
+                        if (elapsed >= 120) { // 2 minutes limit
+                            stopRecording();
+                        }
+                    }, 1000);
+                }
+            };
+
+            const submitAssessment = () => {
+                if (audioChunks.length === 0) {
+                    alert('Tidak ada audio yang direkam');
+                    return;
+                }
+
+                updateStatus('processing', '⏳ Sedang memproses assessment...');
+                submitBtn.disabled = true;
+                startBtn.disabled = true;
+
+                const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+                const reader = new FileReader();
+                reader.readAsDataURL(audioBlob);
+                
+                reader.onloadend = async () => {
+                    const base64String = reader.result.split(',')[1];
+                    try {
+                        const response = await fetch('/submit_assessment', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ audio_base64: base64String })
+                        });
+                        const result = await response.json();
+                        if (result.success) {
+                            showResults(result.results);
+                        } else {
+                            throw new Error(result.error || 'Unknown error');
+                        }
+                    } catch (error) {
+                        console.error('Error submitting assessment:', error);
+                        alert('Error: ' + error.message);
+                        resetAssessment();
+                    }
+                };
+                
+                reader.onerror = (error) => {
+                    console.error('FileReader Error:', error);
+                    alert('Gagal memproses file audio. Silakan coba lagi.');
+                    resetAssessment();
+                };
+            };
+
+            const showResults = (results) => {
+                document.querySelector('.recording-controls').style.display = 'none';
+                document.getElementById('status').style.display = 'none';
+                document.getElementById('results').style.display = 'block';
+                
+                document.getElementById('overallScore').textContent = Math.round(results.overall_score);
+                document.getElementById('transcript').textContent = results.predicted_text;
+                document.getElementById('ieltsScore').textContent = results.ielts_prediction;
+                document.getElementById('cefrScore').textContent = results.cefr_prediction;
+                document.getElementById('pteScore').textContent = results.pte_prediction;
+                document.getElementById('relevanceStatus').textContent = results.content_relevance;
+                document.getElementById('relevanceFeedback').textContent = results.content_relevance_feedback;
+                
+                const detailScores = [
+                    { label: 'Pronunciation', value: results.pronunciation_score },
+                    { label: 'Fluency', value: results.fluency_score },
+                    { label: 'Grammar', value: results.grammar_score },
+                    { label: 'Vocabulary', value: results.vocabulary_score }
+                ];
+                
+                const detailContainer = document.getElementById('detailScores');
+                detailContainer.innerHTML = '';
+                
+                detailScores.forEach(score => {
+                    const scoreItem = document.createElement('div');
+                    scoreItem.className = 'score-item';
+                    scoreItem.innerHTML = `
+                        <div class="score-value">${Math.round(score.value)}</div>
+                        <div class="score-label">${score.label}</div>
+                    `;
+                    detailContainer.appendChild(scoreItem);
+                });
+            };
+
+            const resetAssessment = () => {
+                document.getElementById('results').style.display = 'none';
+                document.querySelector('.recording-controls').style.display = 'block';
+                document.getElementById('status').style.display = 'block';
+                
+                updateStatus('initial', 'Klik "Start Recording" untuk mulai');
+                
+                startBtn.disabled = false;
+                stopBtn.disabled = true;
+                submitBtn.disabled = true;
+                
+                audioChunks = [];
+                mediaRecorder = null;
+                if(timerInterval) clearInterval(timerInterval);
+            };
+
+            // Menambahkan event listener ke tombol
+            startBtn.addEventListener('click', startRecording);
+            stopBtn.addEventListener('click', stopRecording);
+            submitBtn.addEventListener('click', submitAssessment);
+            resetBtn.addEventListener('click', resetAssessment);
+        });
+    </script>
+</body>
+</html>
+```

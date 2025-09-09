@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Assessment Detail - Admin Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f7fa;
+            min-height: 100vh;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px 0;
+            margin-bottom: 30px;
+        }
+
+        .header-content {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .back-btn {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 20px;
+            cursor: pointer;
+            text-decoration: none;
+            backdrop-filter: blur(10px);
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .user-info {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            margin-bottom: 25px;
+        }
+
+        .user-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+
+        .detail-item {
+            text-align: center;
+        }
+
+        .detail-label {
+            color: #666;
+            font-size: 0.9em;
+            margin-bottom: 5px;
+        }
+
+        .detail-value {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .scores-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 25px;
+        }
+
+        .score-card {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            text-align: center;
+        }
+
+        .score-card h3 {
+            color: #667eea;
+            margin-bottom: 15px;
+        }
+
+        .main-score {
+            font-size: 3em;
+            font-weight: bold;
+            color: #667eea;
+            margin: 10px 0;
+        }
+
+        .sub-scores {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .sub-score {
+            text-align: center;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+
+        .sub-score-value {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .sub-score-label {
+            font-size: 0.9em;
+            color: #666;
+            margin-top: 5px;
+        }
+
+        .content-section {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            margin-bottom: 25px;
+        }
+
+        .content-section h3 {
+            color: #667eea;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+
+        .transcript {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            border-left: 4px solid #667eea;
+            line-height: 1.6;
+            font-style: italic;
+        }
+        
+        .feedback-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+        
+        .feedback-card {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            border-left: 4px solid #667eea;
+        }
+
+        .feedback-card h4 {
+            color: #333;
+            margin-bottom: 15px;
+        }
+
+        .feedback-list {
+            list-style-type: none;
+            padding-left: 0;
+            color: #555;
+            font-size: 0.95em;
+        }
+
+        .feedback-list li {
+            margin-bottom: 10px;
+            line-height: 1.5;
+            display: flex;
+        }
+        
+        .feedback-list li::before {
+            content: '🔹';
+            margin-right: 10px;
+            color: #667eea;
+        }
+
+        .no-feedback {
+            color: #888;
+            font-style: italic;
+        }
+        
+        .correction-arrow {
+            color: #27ae60;
+            margin: 0 8px;
+        }
+
+        .raw-data {
+            background: #2d3748;
+            color: #e2e8f0;
+            padding: 20px;
+            border-radius: 10px;
+            overflow-x: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-content">
+            <h1>📊 Assessment Detail</h1>
+            <a href="/admin" class="back-btn">← Back to Dashboard</a>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="user-info">
+            <h2 style="color: #333; margin-bottom: 20px;">User Information</h2>
+            <div class="user-details">
+                <div class="detail-item">
+                    <div class="detail-label">Name</div>
+                    <div class="detail-value">{{ assessment[2] }}</div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-label">NIK</div>
+                    <div class="detail-value">{{ assessment[3] }}</div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-label">Assessment Date</div>
+                    <div class="detail-value">{{ assessment[17].split(' ')[0] if assessment[17] else 'N/A' }}</div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-label">User ID</div>
+                    <div class="detail-value" style="font-size: 0.9em;">{{ assessment[1] }}</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="scores-grid">
+            <div class="score-card">
+                <h3>Overall Score</h3>
+                <div class="main-score">{{ assessment[7]|round if assessment[7] else 0 }}</div>
+                <div style="color: #666;">out of 100</div>
+            </div>
+            
+            <div class="score-card">
+                <h3>Detailed Scores</h3>
+                <div class="sub-scores">
+                    <div class="sub-score">
+                        <div class="sub-score-value">{{ assessment[8]|round if assessment[8] else 0 }}</div>
+                        <div class="sub-score-label">Pronunciation</div>
+                    </div>
+                    <div class="sub-score">
+                        <div class="sub-score-value">{{ assessment[9]|round if assessment[9] else 0 }}</div>
+                        <div class="sub-score-label">Fluency</div>
+                    </div>
+                    <div class="sub-score">
+                        <div class="sub-score-value">{{ assessment[10]|round if assessment[10] else 0 }}</div>
+                        <div class="sub-score-label">Grammar</div>
+                    </div>
+                    <div class="sub-score">
+                        <div class="sub-score-value">{{ assessment[11]|round if assessment[11] else 0 }}</div>
+                        <div class="sub-score-label">Vocabulary</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {% if raw_response %}
+        <div class="content-section">
+            <h3>Detailed Feedback</h3>
+            <div class="feedback-grid">
+                
+                <div class="feedback-card">
+                    <h4>Pronunciation</h4>
+                    <ul class="feedback-list">
+                        {% if raw_response.pronunciation and raw_response.pronunciation.lowest_scoring_phonemes %}
+                            <li>Lowest scoring sounds (phonemes) to practice:</li>
+                            {% for item in raw_response.pronunciation.lowest_scoring_phonemes %}
+                                <li><strong>{{ item.ipa_label }}</strong> (Score: {{ item.phoneme_score|round }})</li>
+                            {% endfor %}
+                        {% else %}
+                            <li class="no-feedback">No specific feedback provided.</li>
+                        {% endif %}
+                    </ul>
+                </div>
+
+                <div class="feedback-card">
+                    <h4>Fluency</h4>
+                    <ul class="feedback-list">
+                        {% if raw_response.fluency and raw_response.fluency.feedback %}
+                            {% for key, value in raw_response.fluency.feedback.items() %}
+                                {% if value.feedback_text %}
+                                    <li>{{ value.feedback_text }}</li>
+                                {% endif %}
+                            {% endfor %}
+                        {% else %}
+                            <li class="no-feedback">No specific feedback provided.</li>
+                        {% endif %}
+                    </ul>
+                </div>
+
+                <div class="feedback-card">
+                    <h4>Grammar</h4>
+                    <ul class="feedback-list">
+                        {% if raw_response.grammar and raw_response.grammar.feedback and raw_response.grammar.feedback.grammar_errors %}
+                            {% for error in raw_response.grammar.feedback.grammar_errors %}
+                                <li>
+                                    {{ error.mistake }}
+                                    <span class="correction-arrow">→</span>
+                                    <strong>{{ error.correction }}</strong>
+                                </li>
+                            {% endfor %}
+                        {% else %}
+                            <li class="no-feedback">No grammar errors found.</li>
+                        {% endif %}
+                    </ul>
+                </div>
+
+                <div class="feedback-card">
+                    <h4>Vocabulary</h4>
+                    <ul class="feedback-list">
+                        {% if raw_response.vocabulary and raw_response.vocabulary.metrics and raw_response.vocabulary.metrics.vocabulary_complexity %}
+                           <li>Vocabulary Complexity: <strong>{{ raw_response.vocabulary.metrics.vocabulary_complexity }}</strong>.</li>
+                           {% if raw_response.vocabulary.metrics.vocabulary_complexity == 'SIMPLE' %}
+                               <li>Try to use a wider range of words to express your ideas.</li>
+                           {% endif %}
+                        {% else %}
+                            <li class="no-feedback">No specific feedback provided.</li>
+                        {% endif %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <div class="content-section">
+            <h3>What the User Said</h3>
+            <div class="transcript">
+                "{{ assessment[6] if assessment[6] else 'No transcript available' }}"
+            </div>
+        </div>
+    </div>
+</body>
+</html>

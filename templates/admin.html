@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - English Assessment</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f7fa;
+            min-height: 100vh;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px 0;
+            margin-bottom: 30px;
+        }
+
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logout-btn {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 20px;
+            cursor: pointer;
+            backdrop-filter: blur(10px);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 2.5em;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        .stat-label {
+            color: #666;
+            font-size: 1.1em;
+        }
+
+        .table-container {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            overflow: hidden;
+        }
+
+        .table-header {
+            background: #667eea;
+            color: white;
+            padding: 20px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+
+        th {
+            background: #f8f9fa;
+            font-weight: 600;
+            color: #333;
+        }
+
+        tr:hover {
+            background: #f8f9fa;
+        }
+
+        .score {
+            font-weight: bold;
+            padding: 5px 10px;
+            border-radius: 20px;
+            color: white;
+        }
+
+        .score.excellent { background: #27ae60; }
+        .score.good { background: #f39c12; }
+        .score.fair { background: #e67e22; }
+        .score.poor { background: #e74c3c; }
+
+        .relevance {
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 0.9em;
+            font-weight: 500;
+        }
+
+        .relevance.RELEVANT { background: #d5f4e6; color: #27ae60; }
+        .relevance.PARTIALLY_RELEVANT { background: #fef9e7; color: #f39c12; }
+        .relevance.NOT_RELEVANT { background: #fadbd8; color: #e74c3c; }
+
+        .view-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 20px;
+            cursor: pointer;
+            text-decoration: none;
+            font-size: 0.9em;
+        }
+
+        .view-btn:hover {
+            background: #5a67d8;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #666;
+        }
+
+        @media (max-width: 768px) {
+            .table-container {
+                overflow-x: auto;
+            }
+            
+            table {
+                min-width: 800px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-content">
+            <h1>🎯 Admin Dashboard</h1>
+            <button class="logout-btn" onclick="location.href='/logout'">Logout</button>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="stats">
+            <div class="stat-card">
+                <div class="stat-number">{{ assessments|length }}</div>
+                <div class="stat-label">Total Assessments</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">{{ ((assessments|map(attribute='4')|sum) / assessments|length)|round(1) if assessments else 0 }}</div>
+                <div class="stat-label">Average Score</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">{{ assessments|map(attribute='2')|list|unique|list|length }}</div>
+                <div class="stat-label">Unique Users</div>
+            </div>
+        </div>
+    <div class="filter-container" style="background: white; padding: 20px; border-radius: 15px; margin-bottom: 20px; box-shadow: 0 5px 15px rgba(0,0,0,0.05);">
+        <form method="GET" action="/admin" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; align-items: center;">
+
+            <input type="text" name="name_filter" placeholder="Filter by Name" value="{{ request.args.get('name_filter', '') }}" style="padding: 10px; border: 1px solid #ddd; border-radius: 5px;">
+            <input type="text" name="nik_filter" placeholder="Filter by NIK" value="{{ request.args.get('nik_filter', '') }}" style="padding: 10px; border: 1px solid #ddd; border-radius: 5px;">
+
+            <div style="display: flex; align-items: center; gap: 5px;">
+                <label for="start_date" style="font-size: 0.9em; color: #555;">From:</label>
+                <input type="date" id="start_date" name="start_date" value="{{ request.args.get('start_date', '') }}" style="padding: 9px; border: 1px solid #ddd; border-radius: 5px; width: 100%;">
+            </div>
+            <div style="display: flex; align-items: center; gap: 5px;">
+                <label for="end_date" style="font-size: 0.9em; color: #555;">To:</label>
+                <input type="date" id="end_date" name="end_date" value="{{ request.args.get('end_date', '') }}" style="padding: 9px; border: 1px solid #ddd; border-radius: 5px; width: 100%;">
+            </div>
+
+            <input type="number" name="min_score" placeholder="Score Min (e.g., 60)" value="{{ request.args.get('min_score', '') }}" style="padding: 10px; border: 1px solid #ddd; border-radius: 5px;">
+            <input type="number" name="max_score" placeholder="Score Max (e.g., 80)" value="{{ request.args.get('max_score', '') }}" style="padding: 10px; border: 1px solid #ddd; border-radius: 5px;">
+
+            <div style="display: flex; gap: 10px;">
+                <button type="submit" class="view-btn" style="border: none; flex-grow: 1;">Filter</button>
+                <a href="/admin" class="view-btn" style="background: #777; text-decoration: none; text-align: center; padding-top: 9px;">Clear</a>
+            </div>
+        </form>
+    </div>
+        <div class="table-container">
+            <div class="table-header">
+                <h2>Assessment Results</h2>
+            </div>
+            
+            {% if assessments %}
+            <table>
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>NIK</th>
+                        <th>Date</th>
+                        <th>Overall Score</th>
+                        <th>Pronunciation</th>
+                        <th>Fluency</th>
+                        <th>Grammar</th>
+                        <th>Vocabulary</th>
+                        <th>IELTS</th>
+                        <th>CEFR</th>
+                        <th>Relevance</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for assessment in assessments %}
+                    <tr>
+                        <td><strong>{{ assessment[1] }}</strong></td>
+                        <td>{{ assessment[2] }}</td>
+                        <td>{{ assessment[12].split(' ')[0] if assessment[12] else '-' }}</td>
+                        <td>
+                            <span class="score {% if assessment[4] >= 80 %}excellent{% elif assessment[4] >= 70 %}good{% elif assessment[4] >= 60 %}fair{% else %}poor{% endif %}">
+                                {{ assessment[4]|round }}
+                            </span>
+                        </td>
+                        <td>{{ assessment[5]|round if assessment[5] else '-' }}</td>
+                        <td>{{ assessment[6]|round if assessment[6] else '-' }}</td>
+                        <td>{{ assessment[7]|round if assessment[7] else '-' }}</td>
+                        <td>{{ assessment[8]|round if assessment[8] else '-' }}</td>
+                        <td>{{ assessment[9] if assessment[9] else '-' }}</td>
+                        <td>{{ assessment[10] if assessment[10] else '-' }}</td>
+                        <td>
+                            <span class="relevance {{ assessment[11] if assessment[11] else 'UNKNOWN' }}">
+                                {{ assessment[11] if assessment[11] else 'Unknown' }}
+                            </span>
+                        </td>
+                        <td>
+                            <a href="/admin/detail/{{ assessment[0] }}" class="view-btn">View</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <div class="empty-state">
+                <h3>No Assessments Yet</h3>
+                <p>Assessment results will appear here once users start taking tests.</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</body>
+</html>
