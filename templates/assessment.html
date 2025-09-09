@@ -199,7 +199,7 @@
             right: 20px;
             padding: 10px 20px;
             background: rgba(255,255,255,0.2);
-            color: rgb(0, 0, 0);
+            color: white;
             border: none;
             border-radius: 20px;
             cursor: pointer;
@@ -230,7 +230,7 @@
     <div class="container">
         <div class="question-section">
             <div class="question">
-                "What have you been doing at work this past week? What challenges did you face and how did you overcome them?"
+                "What have you been doing at work this past week?"
             </div>
             <div class="instructions">
                 Jawab pertanyaan di atas dalam bahasa Inggris. Klik tombol "Start Recording" untuk mulai merekam, 
@@ -307,8 +307,6 @@
     </div>
 
     <script>
-        // --- KODE BARU YANG LEBIH TERSTRUKTUR ---
-
         document.addEventListener('DOMContentLoaded', () => {
             const startBtn = document.getElementById('startBtn');
             const stopBtn = document.getElementById('stopBtn');
@@ -319,30 +317,37 @@
             let audioChunks = [];
             let recordingStartTime;
             let timerInterval;
+            let audioStream; // Variabel untuk menyimpan stream audio
 
             const startRecording = async () => {
                 try {
-                    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-                    mediaRecorder = new MediaRecorder(stream, { mimeType: 'audio/webm' });
+                    // --- PERUBAHAN KRUSIAL DIMULAI DI SINI ---
+                    // 1. Minta akses mikrofon SEKARANG, sebagai hal pertama.
+                    audioStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+
+                    // 2. Setelah izin berhasil didapat, baru lakukan hal lain.
+                    startBtn.disabled = true;
+                    stopBtn.disabled = false;
+                    submitBtn.disabled = true;
+                    updateStatus('recording', '🔴 Sedang merekam...', true);
                     
                     audioChunks = [];
-                    recordingStartTime = Date.now();
+                    mediaRecorder = new MediaRecorder(audioStream, { mimeType: 'audio/webm' });
                     
                     mediaRecorder.ondataavailable = event => {
                         audioChunks.push(event.data);
                     };
                     
                     mediaRecorder.onstop = () => {
-                        stream.getTracks().forEach(track => track.stop());
+                        // Hentikan semua track audio saat rekaman berhenti
+                        if (audioStream) {
+                           audioStream.getTracks().forEach(track => track.stop());
+                        }
                     };
                     
                     mediaRecorder.start();
-                    
-                    startBtn.disabled = true;
-                    stopBtn.disabled = false;
-                    submitBtn.disabled = true;
-                    
-                    updateStatus('recording', '🔴 Sedang merekam...', true);
+                    recordingStartTime = Date.now();
+                    // --- AKHIR PERUBAHAN ---
                     
                 } catch (error) {
                     console.error('Error accessing microphone:', error);
@@ -382,11 +387,12 @@
                         const elapsed = Math.floor((Date.now() - recordingStartTime) / 1000);
                         const minutes = Math.floor(elapsed / 60);
                         const seconds = elapsed % 60;
-                        if(document.getElementById('timer')) {
-                           document.getElementById('timer').textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+                        const timerDisplay = document.getElementById('timer');
+                        if(timerDisplay) {
+                           timerDisplay.textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
                         }
                         
-                        if (elapsed >= 120) { // 2 minutes limit
+                        if (elapsed >= 120) {
                             stopRecording();
                         }
                     }, 1000);
@@ -482,6 +488,9 @@
                 
                 audioChunks = [];
                 mediaRecorder = null;
+                if (audioStream) {
+                    audioStream.getTracks().forEach(track => track.stop());
+                }
                 if(timerInterval) clearInterval(timerInterval);
             };
 
@@ -494,4 +503,3 @@
     </script>
 </body>
 </html>
-```
