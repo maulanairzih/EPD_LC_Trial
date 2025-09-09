@@ -352,13 +352,6 @@
                 "{{ assessment.predicted_text if assessment.predicted_text else 'No transcript available' }}"
             </div>
         </div>
-        
-        {% if raw_response %}
-        <div class="content-section">
-            <h3>Raw API Response</h3>
-            <div class="raw-data">{{ raw_response|tojson(indent=2) }}</div>
-        </div>
-        {% endif %}
     </div>
 </body>
 </html>

@@ -35,7 +35,7 @@
 
         .logout-btn {
             background: rgba(255,255,255,0.2);
-            color: white;
+            color: rgb(0, 0, 0);
             border: none;
             padding: 10px 20px;
             border-radius: 20px;
@@ -206,18 +206,13 @@
             <table>
                 <thead>
                     <tr>
-                        <th>Name</th>
-                        <th>NIK</th>
-                        <th>Date</th>
-                        <th>Overall Score</th>
-                        <th>Pronunciation</th>
-                        <th>Fluency</th>
-                        <th>Grammar</th>
-                        <th>Vocabulary</th>
-                        <th>IELTS</th>
-                        <th>CEFR</th>
-                        <th>Relevance</th>
-                        <th>Action</th>
+                        <th style="width: 20%;">Name</th>
+                        <th style="width: 10%;">NIK</th>
+                        <th style="width: 15%;">Date</th>
+                        <th style="width: 10%;">Overall Score</th>
+                        <th style="width: 10%;">CEFR</th>
+                        <th style="width: 15%;">Answer Relevance</th>
+                        <th style="width: 15%;">Action</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -231,11 +226,6 @@
                                 {{ assessment.overall_score|round if assessment.overall_score is not none else '-' }}
                             </span>
                         </td>
-                        <td>{{ assessment.pronunciation_score|round if assessment.pronunciation_score is not none else '-' }}</td>
-                        <td>{{ assessment.fluency_score|round if assessment.fluency_score is not none else '-' }}</td>
-                        <td>{{ assessment.grammar_score|round if assessment.grammar_score is not none else '-' }}</td>
-                        <td>{{ assessment.vocabulary_score|round if assessment.vocabulary_score is not none else '-' }}</td>
-                        <td>{{ assessment.ielts_prediction if assessment.ielts_prediction else '-' }}</td>
                         <td>{{ assessment.cefr_prediction if assessment.cefr_prediction else '-' }}</td>
                         <td>
                             <span class="relevance {{ assessment.content_relevance if assessment.content_relevance else 'UNKNOWN' }}">
@@ -243,7 +233,7 @@
                             </span>
                         </td>
                         <td>
-                            <a href="/admin/detail/{{ assessment.id }}" class="view-btn">View Details</a>
+                            <a href="/admin/detail/{{ assessment.id }}" class="view-btn">View</a>
                         </td>
                     </tr>
                     {% endfor %}
