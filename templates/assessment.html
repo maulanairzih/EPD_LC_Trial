@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Assessment - English Platform</title>
     <style>
+        /* ... CSS Anda tetap sama, tidak perlu diubah ... */
         * {
             margin: 0;
             padding: 0;
@@ -219,6 +220,8 @@
 </head>
 <body>
     <button class="logout-btn" onclick="location.href='/logout'">Logout</button>
+    
+    <video id="dummy-video" playsinline muted style="display:none;"></video>
 
     <div class="header">
         <h1>🎯 English Assessment</h1>
@@ -312,21 +315,32 @@
             const stopBtn = document.getElementById('stopBtn');
             const submitBtn = document.getElementById('submitBtn');
             const resetBtn = document.getElementById('resetBtn');
+            const dummyVideo = document.getElementById('dummy-video');
 
             let mediaRecorder;
             let audioChunks = [];
             let recordingStartTime;
             let timerInterval;
-            let audioStream; // Variabel untuk menyimpan stream audio
+            let audioStream;
 
             const startRecording = async () => {
-                try {
-                    // --- PERUBAHAN KRUSIAL DIMULAI DI SINI ---
-                    // 1. Minta akses mikrofon SEKARANG, sebagai hal pertama.
-                    audioStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                startBtn.disabled = true;
+                startBtn.textContent = "Accessing Mic...";
 
-                    // 2. Setelah izin berhasil didapat, baru lakukan hal lain.
-                    startBtn.disabled = true;
+                try {
+                    // --- PERUBAHAN KRUSIAL ---
+                    const constraints = {
+                        audio: {
+                            echoCancellation: true,
+                            noiseSuppression: true,
+                            sampleRate: 44100
+                        }
+                    };
+                    audioStream = await navigator.mediaDevices.getUserMedia(constraints);
+
+                    // Hubungkan stream ke elemen video dummy (penting untuk iOS)
+                    dummyVideo.srcObject = audioStream;
+
                     stopBtn.disabled = false;
                     submitBtn.disabled = true;
                     updateStatus('recording', '🔴 Sedang merekam...', true);
@@ -335,11 +349,12 @@
                     mediaRecorder = new MediaRecorder(audioStream, { mimeType: 'audio/webm' });
                     
                     mediaRecorder.ondataavailable = event => {
-                        audioChunks.push(event.data);
+                        if (event.data.size > 0) {
+                            audioChunks.push(event.data);
+                        }
                     };
                     
                     mediaRecorder.onstop = () => {
-                        // Hentikan semua track audio saat rekaman berhenti
                         if (audioStream) {
                            audioStream.getTracks().forEach(track => track.stop());
                         }
@@ -347,18 +362,24 @@
                     
                     mediaRecorder.start();
                     recordingStartTime = Date.now();
-                    // --- AKHIR PERUBAHAN ---
+                    startBtn.textContent = "🎤 Start Recording";
                     
                 } catch (error) {
                     console.error('Error accessing microphone:', error);
-                    alert('Error: Tidak dapat mengakses mikrofon. Pastikan Anda memberikan izin akses.');
+                    // Berikan pesan error yang lebih spesifik
+                    if (error.name === 'NotAllowedError' || error.name === 'PermissionDeniedError') {
+                        alert('Error: Izin akses mikrofon ditolak. Silakan periksa pengaturan browser Anda.');
+                    } else {
+                        alert(`Error: Tidak dapat mengakses mikrofon. (${error.name})`);
+                    }
+                    startBtn.disabled = false;
+                    startBtn.textContent = "🎤 Start Recording";
                 }
             };
 
             const stopRecording = () => {
                 if (mediaRecorder && mediaRecorder.state === 'recording') {
                     mediaRecorder.stop();
-                    
                     startBtn.disabled = false;
                     stopBtn.disabled = true;
                     submitBtn.disabled = false;
@@ -494,7 +515,6 @@
                 if(timerInterval) clearInterval(timerInterval);
             };
 
-            // Menambahkan event listener ke tombol
             startBtn.addEventListener('click', startRecording);
             stopBtn.addEventListener('click', stopRecording);
             submitBtn.addEventListener('click', submitAssessment);
