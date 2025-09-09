@@ -75,12 +75,20 @@
             color: #666;
             font-size: 1.1em;
         }
+        
+        .filter-container {
+            background: white; 
+            padding: 20px; 
+            border-radius: 15px; 
+            margin-bottom: 20px; 
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        }
 
         .table-container {
             background: white;
             border-radius: 15px;
             box-shadow: 0 5px 15px rgba(0,0,0,0.05);
-            overflow: hidden;
+            overflow-x: auto;
         }
 
         .table-header {
@@ -153,16 +161,6 @@
             padding: 60px 20px;
             color: #666;
         }
-
-        @media (max-width: 768px) {
-            .table-container {
-                overflow-x: auto;
-            }
-            
-            table {
-                min-width: 800px;
-            }
-        }
     </style>
 </head>
 <body>
@@ -180,38 +178,25 @@
                 <div class="stat-label">Total Assessments</div>
             </div>
             <div class="stat-card">
-                <div class="stat-number">{{ ((assessments|map(attribute='4')|sum) / assessments|length)|round(1) if assessments else 0 }}</div>
+                <div class="stat-number">{{ (assessments|map(attribute='overall_score')|sum / assessments|length)|round(1) if assessments else 0 }}</div>
                 <div class="stat-label">Average Score</div>
             </div>
             <div class="stat-card">
-                <div class="stat-number">{{ assessments|map(attribute='2')|list|unique|list|length }}</div>
+                <div class="stat-number">{{ assessments|map(attribute='nik')|unique|list|length }}</div>
                 <div class="stat-label">Unique Users</div>
             </div>
         </div>
-    <div class="filter-container" style="background: white; padding: 20px; border-radius: 15px; margin-bottom: 20px; box-shadow: 0 5px 15px rgba(0,0,0,0.05);">
-        <form method="GET" action="/admin" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; align-items: center;">
 
-            <input type="text" name="name_filter" placeholder="Filter by Name" value="{{ request.args.get('name_filter', '') }}" style="padding: 10px; border: 1px solid #ddd; border-radius: 5px;">
-            <input type="text" name="nik_filter" placeholder="Filter by NIK" value="{{ request.args.get('nik_filter', '') }}" style="padding: 10px; border: 1px solid #ddd; border-radius: 5px;">
+        <div class="filter-container">
+            <form method="GET" action="/admin" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; align-items: center;">
+                <input type="text" name="name_filter" placeholder="Filter by Name" value="{{ request.args.get('name_filter', '') }}" style="padding: 10px; border: 1px solid #ddd; border-radius: 5px;">
+                <div style="display: flex; gap: 10px;">
+                    <button type="submit" class="view-btn" style="border: none; flex-grow: 1;">Filter</button>
+                    <a href="/admin" class="view-btn" style="background: #777; text-decoration: none; text-align: center; padding-top: 9px;">Clear</a>
+                </div>
+            </form>
+        </div>
 
-            <div style="display: flex; align-items: center; gap: 5px;">
-                <label for="start_date" style="font-size: 0.9em; color: #555;">From:</label>
-                <input type="date" id="start_date" name="start_date" value="{{ request.args.get('start_date', '') }}" style="padding: 9px; border: 1px solid #ddd; border-radius: 5px; width: 100%;">
-            </div>
-            <div style="display: flex; align-items: center; gap: 5px;">
-                <label for="end_date" style="font-size: 0.9em; color: #555;">To:</label>
-                <input type="date" id="end_date" name="end_date" value="{{ request.args.get('end_date', '') }}" style="padding: 9px; border: 1px solid #ddd; border-radius: 5px; width: 100%;">
-            </div>
-
-            <input type="number" name="min_score" placeholder="Score Min (e.g., 60)" value="{{ request.args.get('min_score', '') }}" style="padding: 10px; border: 1px solid #ddd; border-radius: 5px;">
-            <input type="number" name="max_score" placeholder="Score Max (e.g., 80)" value="{{ request.args.get('max_score', '') }}" style="padding: 10px; border: 1px solid #ddd; border-radius: 5px;">
-
-            <div style="display: flex; gap: 10px;">
-                <button type="submit" class="view-btn" style="border: none; flex-grow: 1;">Filter</button>
-                <a href="/admin" class="view-btn" style="background: #777; text-decoration: none; text-align: center; padding-top: 9px;">Clear</a>
-            </div>
-        </form>
-    </div>
         <div class="table-container">
             <div class="table-header">
                 <h2>Assessment Results</h2>
@@ -238,27 +223,27 @@
                 <tbody>
                     {% for assessment in assessments %}
                     <tr>
-                        <td><strong>{{ assessment[1] }}</strong></td>
-                        <td>{{ assessment[2] }}</td>
-                        <td>{{ assessment[12].split(' ')[0] if assessment[12] else '-' }}</td>
+                        <td><strong>{{ assessment.name }}</strong></td>
+                        <td>{{ assessment.nik }}</td>
+                        <td>{{ assessment.assessment_date.strftime('%Y-%m-%d') if assessment.assessment_date else '-' }}</td>
                         <td>
-                            <span class="score {% if assessment[4] >= 80 %}excellent{% elif assessment[4] >= 70 %}good{% elif assessment[4] >= 60 %}fair{% else %}poor{% endif %}">
-                                {{ assessment[4]|round }}
+                            <span class="score {% if assessment.overall_score >= 80 %}excellent{% elif assessment.overall_score >= 70 %}good{% elif assessment.overall_score >= 60 %}fair{% else %}poor{% endif %}">
+                                {{ assessment.overall_score|round if assessment.overall_score is not none else '-' }}
                             </span>
                         </td>
-                        <td>{{ assessment[5]|round if assessment[5] else '-' }}</td>
-                        <td>{{ assessment[6]|round if assessment[6] else '-' }}</td>
-                        <td>{{ assessment[7]|round if assessment[7] else '-' }}</td>
-                        <td>{{ assessment[8]|round if assessment[8] else '-' }}</td>
-                        <td>{{ assessment[9] if assessment[9] else '-' }}</td>
-                        <td>{{ assessment[10] if assessment[10] else '-' }}</td>
+                        <td>{{ assessment.pronunciation_score|round if assessment.pronunciation_score is not none else '-' }}</td>
+                        <td>{{ assessment.fluency_score|round if assessment.fluency_score is not none else '-' }}</td>
+                        <td>{{ assessment.grammar_score|round if assessment.grammar_score is not none else '-' }}</td>
+                        <td>{{ assessment.vocabulary_score|round if assessment.vocabulary_score is not none else '-' }}</td>
+                        <td>{{ assessment.ielts_prediction if assessment.ielts_prediction else '-' }}</td>
+                        <td>{{ assessment.cefr_prediction if assessment.cefr_prediction else '-' }}</td>
                         <td>
-                            <span class="relevance {{ assessment[11] if assessment[11] else 'UNKNOWN' }}">
-                                {{ assessment[11] if assessment[11] else 'Unknown' }}
+                            <span class="relevance {{ assessment.content_relevance if assessment.content_relevance else 'UNKNOWN' }}">
+                                {{ assessment.content_relevance if assessment.content_relevance else 'Unknown' }}
                             </span>
                         </td>
                         <td>
-                            <a href="/admin/detail/{{ assessment[0] }}" class="view-btn">View</a>
+                            <a href="/admin/detail/{{ assessment.id }}" class="view-btn">View Details</a>
                         </td>
                     </tr>
                     {% endfor %}

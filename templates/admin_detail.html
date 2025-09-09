@@ -232,19 +232,19 @@
             <div class="user-details">
                 <div class="detail-item">
                     <div class="detail-label">Name</div>
-                    <div class="detail-value">{{ assessment[2] }}</div>
+                    <div class="detail-value">{{ assessment.name }}</div>
                 </div>
                 <div class="detail-item">
                     <div class="detail-label">NIK</div>
-                    <div class="detail-value">{{ assessment[3] }}</div>
+                    <div class="detail-value">{{ assessment.nik }}</div>
                 </div>
                 <div class="detail-item">
                     <div class="detail-label">Assessment Date</div>
-                    <div class="detail-value">{{ assessment[17].split(' ')[0] if assessment[17] else 'N/A' }}</div>
+                    <div class="detail-value">{{ assessment.assessment_date.strftime('%Y-%m-%d') if assessment.assessment_date else 'N/A' }}</div>
                 </div>
                 <div class="detail-item">
                     <div class="detail-label">User ID</div>
-                    <div class="detail-value" style="font-size: 0.9em;">{{ assessment[1] }}</div>
+                    <div class="detail-value" style="font-size: 0.9em;">{{ assessment.user_id }}</div>
                 </div>
             </div>
         </div>
@@ -252,7 +252,7 @@
         <div class="scores-grid">
             <div class="score-card">
                 <h3>Overall Score</h3>
-                <div class="main-score">{{ assessment[7]|round if assessment[7] else 0 }}</div>
+                <div class="main-score">{{ assessment.overall_score|round if assessment.overall_score is not none else 0 }}</div>
                 <div style="color: #666;">out of 100</div>
             </div>
             
@@ -260,19 +260,19 @@
                 <h3>Detailed Scores</h3>
                 <div class="sub-scores">
                     <div class="sub-score">
-                        <div class="sub-score-value">{{ assessment[8]|round if assessment[8] else 0 }}</div>
+                        <div class="sub-score-value">{{ assessment.pronunciation_score|round if assessment.pronunciation_score is not none else 0 }}</div>
                         <div class="sub-score-label">Pronunciation</div>
                     </div>
                     <div class="sub-score">
-                        <div class="sub-score-value">{{ assessment[9]|round if assessment[9] else 0 }}</div>
+                        <div class="sub-score-value">{{ assessment.fluency_score|round if assessment.fluency_score is not none else 0 }}</div>
                         <div class="sub-score-label">Fluency</div>
                     </div>
                     <div class="sub-score">
-                        <div class="sub-score-value">{{ assessment[10]|round if assessment[10] else 0 }}</div>
+                        <div class="sub-score-value">{{ assessment.grammar_score|round if assessment.grammar_score is not none else 0 }}</div>
                         <div class="sub-score-label">Grammar</div>
                     </div>
                     <div class="sub-score">
-                        <div class="sub-score-value">{{ assessment[11]|round if assessment[11] else 0 }}</div>
+                        <div class="sub-score-value">{{ assessment.vocabulary_score|round if assessment.vocabulary_score is not none else 0 }}</div>
                         <div class="sub-score-label">Vocabulary</div>
                     </div>
                 </div>
@@ -283,7 +283,6 @@
         <div class="content-section">
             <h3>Detailed Feedback</h3>
             <div class="feedback-grid">
-                
                 <div class="feedback-card">
                     <h4>Pronunciation</h4>
                     <ul class="feedback-list">
@@ -350,9 +349,16 @@
         <div class="content-section">
             <h3>What the User Said</h3>
             <div class="transcript">
-                "{{ assessment[6] if assessment[6] else 'No transcript available' }}"
+                "{{ assessment.predicted_text if assessment.predicted_text else 'No transcript available' }}"
             </div>
         </div>
+        
+        {% if raw_response %}
+        <div class="content-section">
+            <h3>Raw API Response</h3>
+            <div class="raw-data">{{ raw_response|tojson(indent=2) }}</div>
+        </div>
+        {% endif %}
     </div>
 </body>
 </html>
