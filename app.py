@@ -160,6 +160,7 @@ def submit_assessment():
                 'fluency_score': new_assessment.fluency_score,
                 'grammar_score': new_assessment.grammar_score,
                 'vocabulary_score': new_assessment.vocabulary_score,
+                'cefr_prediction': new_assessment.cefr_prediction,
                 'raw_response': lc_result # <-- Tambahkan ini
             }
         })
