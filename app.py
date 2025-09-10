@@ -90,15 +90,14 @@ def assessment():
 def submit_assessment():
     if 'user_name' not in session:
         return jsonify({'error': 'Session expired'}), 401
-    
+
     try:
         data = request.get_json()
         audio_base64 = data.get('audio_base64')
-        
-        # ... (Logika request ke API LC tetap sama) ...
+
         LC_API_KEY = os.environ.get('LC_API_KEY')
         LC_API_URL = 'https://apis.languageconfidence.ai/speech-assessment/unscripted/us'
-        
+
         lc_payload = {
             "audio_base64": audio_base64, "audio_format": "webm",
             "context": {
@@ -111,12 +110,24 @@ def submit_assessment():
             'api-key': LC_API_KEY, 'x-user-id': session['user_id']
         }
         response = requests.post(LC_API_URL, json=lc_payload, headers=headers)
-        
+
         if response.status_code != 200:
             return jsonify({'error': f'API Error: {response.status_code} - {response.text}'}), 500
-        
+
         lc_result = response.json()
-        
+
+        # Extract key metrics
+        pronunciation_score = lc_result.get('pronunciation', {}).get('overall_score', 0)
+        fluency_score = lc_result.get('fluency', {}).get('overall_score', 0)
+        grammar_score = lc_result.get('grammar', {}).get('overall_score', 0)
+        vocabulary_score = lc_result.get('vocabulary', {}).get('overall_score', 0)
+
+        # --- PERUBAHAN DIMULAI DI SINI ---
+        # Kalkulasi Overall Score baru tanpa Grammar
+        scores_to_average = [pronunciation_score, fluency_score, vocabulary_score]
+        custom_overall_score = sum(scores_to_average) / len(scores_to_average) if scores_to_average else 0
+        # --- AKHIR PERUBAHAN ---
+
         # Simpan ke database menggunakan SQLAlchemy
         new_assessment = Assessment(
             user_id=session['user_id'],
@@ -124,11 +135,11 @@ def submit_assessment():
             nik=session['user_nik'],
             question="What have you been doing at work this past week?",
             predicted_text=lc_result.get('metadata', {}).get('predicted_text', ''),
-            overall_score=lc_result.get('overall', {}).get('overall_score', 0),
-            pronunciation_score=lc_result.get('pronunciation', {}).get('overall_score', 0),
-            fluency_score=lc_result.get('fluency', {}).get('overall_score', 0),
-            grammar_score=lc_result.get('grammar', {}).get('overall_score', 0),
-            vocabulary_score=lc_result.get('vocabulary', {}).get('overall_score', 0),
+            overall_score=custom_overall_score, # <-- Gunakan skor baru
+            pronunciation_score=pronunciation_score,
+            fluency_score=fluency_score,
+            grammar_score=grammar_score, # <-- Skor grammar tetap disimpan untuk referensi
+            vocabulary_score=vocabulary_score,
             ielts_prediction=lc_result.get('overall', {}).get('english_proficiency_scores', {}).get('mock_ielts', {}).get('prediction', 0),
             cefr_prediction=lc_result.get('overall', {}).get('english_proficiency_scores', {}).get('mock_cefr', {}).get('prediction', ''),
             pte_prediction=lc_result.get('overall', {}).get('english_proficiency_scores', {}).get('mock_pte', {}).get('prediction', ''),
@@ -138,8 +149,8 @@ def submit_assessment():
         )
         db.session.add(new_assessment)
         db.session.commit()
-        
-        # ... (Return simplified results tetap sama) ...
+
+        # --- PERUBAHAN KEDUA: Kirim raw_response ke JavaScript ---
         return jsonify({
             'success': True,
             'results': {
@@ -149,14 +160,10 @@ def submit_assessment():
                 'fluency_score': new_assessment.fluency_score,
                 'grammar_score': new_assessment.grammar_score,
                 'vocabulary_score': new_assessment.vocabulary_score,
-                'ielts_prediction': new_assessment.ielts_prediction,
-                'cefr_prediction': new_assessment.cefr_prediction,
-                'pte_prediction': new_assessment.pte_prediction,
-                'content_relevance': new_assessment.content_relevance,
-                'content_relevance_feedback': new_assessment.content_relevance_feedback
+                'raw_response': lc_result # <-- Tambahkan ini
             }
         })
-        
+
     except Exception as e:
         db.session.rollback()
         return jsonify({'error': str(e)}), 500

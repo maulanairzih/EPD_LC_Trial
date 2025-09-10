@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Assessment - English Platform</title>
     <style>
-        /* ... CSS Anda tetap sama, tidak perlu diubah ... */
         * {
             margin: 0;
             padding: 0;
@@ -328,7 +327,6 @@
                 startBtn.textContent = "Accessing Mic...";
 
                 try {
-                    // --- PERUBAHAN KRUSIAL ---
                     const constraints = {
                         audio: {
                             echoCancellation: true,
@@ -337,8 +335,6 @@
                         }
                     };
                     audioStream = await navigator.mediaDevices.getUserMedia(constraints);
-
-                    // Hubungkan stream ke elemen video dummy (penting untuk iOS)
                     dummyVideo.srcObject = audioStream;
 
                     stopBtn.disabled = false;
@@ -366,7 +362,6 @@
                     
                 } catch (error) {
                     console.error('Error accessing microphone:', error);
-                    // Berikan pesan error yang lebih spesifik
                     if (error.name === 'NotAllowedError' || error.name === 'PermissionDeniedError') {
                         alert('Error: Izin akses mikrofon ditolak. Silakan periksa pengaturan browser Anda.');
                     } else {

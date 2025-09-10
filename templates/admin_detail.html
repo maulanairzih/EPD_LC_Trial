@@ -313,23 +313,6 @@
                 </div>
 
                 <div class="feedback-card">
-                    <h4>Grammar</h4>
-                    <ul class="feedback-list">
-                        {% if raw_response.grammar and raw_response.grammar.feedback and raw_response.grammar.feedback.grammar_errors %}
-                            {% for error in raw_response.grammar.feedback.grammar_errors %}
-                                <li>
-                                    {{ error.mistake }}
-                                    <span class="correction-arrow">→</span>
-                                    <strong>{{ error.correction }}</strong>
-                                </li>
-                            {% endfor %}
-                        {% else %}
-                            <li class="no-feedback">No grammar errors found.</li>
-                        {% endif %}
-                    </ul>
-                </div>
-
-                <div class="feedback-card">
                     <h4>Vocabulary</h4>
                     <ul class="feedback-list">
                         {% if raw_response.vocabulary and raw_response.vocabulary.metrics and raw_response.vocabulary.metrics.vocabulary_complexity %}
