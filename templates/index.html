@@ -107,9 +107,10 @@
 </head>
 <body>
     <div class="container">
-        <div class="logo">🎯</div>
+        <img src="{{ url_for('static', filename='logo.png') }}" alt="Company Logo" style="max-width: 150px; margin-bottom: 20px;">
+
         <h1 style="color: #333; margin-bottom: 10px;">English Assessment</h1>
-        <p class="subtitle">Platform Asesmen Bahasa Inggris Karyawan</p>
+        <p class="subtitle">Platform Asesmen Bahasa Inggris Karyawan PCI</p>
 
         {% if error %}
         <div class="error">{{ error }}</div>
