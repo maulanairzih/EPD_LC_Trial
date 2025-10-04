@@ -110,7 +110,7 @@
         <img src="{{ url_for('static', filename='logo.png') }}" alt="Company Logo" style="max-width: 150px; margin-bottom: 20px;">
 
         <h1 style="color: #333; margin-bottom: 10px;">English Assessment</h1>
-        <p class="subtitle">Platform Asesmen Bahasa Inggris Karyawan PCI</p>
+        <p class="subtitle">English Speaking Assessment Trial for PCG Employees</p>
 
         {% if error %}
         <div class="error">{{ error }}</div>
@@ -118,20 +118,20 @@
 
         <form method="POST" action="/login">
             <div class="form-group">
-                <label for="name">Nama Lengkap</label>
-                <input type="text" id="name" name="name" required placeholder="Masukkan nama lengkap">
+                <label for="name">Full Name</label>
+                <input type="text" id="name" name="name" required placeholder="Enter your Full Name">
             </div>
 
             <div class="form-group">
-                <label for="nik">NIK (Nomor Induk Karyawan)</label>
-                <input type="text" id="nik" name="nik" required placeholder="Masukkan NIK">
+                <label for="nik">Employee ID</label>
+                <input type="text" id="nik" name="nik" required placeholder="Enter your Employee ID">
             </div>
 
-            <button type="submit" class="login-btn">Mulai Assessment</button>
+            <button type="submit" class="login-btn">Start Assessment</button>
         </form>
 
         <div class="admin-note">
-            <strong>Admin Access:</strong> Gunakan "admin" untuk nama dan NIK untuk mengakses dashboard admin
+            <strong>Admin Access:</strong> Type "admin" in both Name and Employee ID columns to access the admin dashboard.
         </div>
     </div>
 </body>
